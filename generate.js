@@ -10,14 +10,14 @@ const jFile = path.join(process.cwd(), 'jsconfig.json')
 
 const mod = require(pFile)
 
-const {
-  scripts = {
-    lint: 'npm run lint:standard && npm run lint:typescript',
-    'lint:fix': 'standard --fix',
-    'lint:standard': 'standard --verbose | snazzy',
-    'lint:typescript': 'eslint -c types/.eslintrc types/**/*.d.ts'
-  }
-} = mod
+mod.scripts = mod.scripts || {
+  lint: 'npm run lint:standard && npm run lint:typescript',
+  'lint:fix': 'standard --fix',
+  'lint:standard': 'standard --verbose | snazzy',
+  'lint:typescript': 'eslint -c types/.eslintrc types/**/*.d.ts'
+}
+
+const { scripts } = mod
 
 const nScripts = {
   'lint:nuxt': 'eslint --ext ".js,.vue" ./nuxtjs',
