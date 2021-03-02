@@ -1,0 +1,46 @@
+{
+  "name": "smallify-nuxtjs",
+  "version": "1.0.0",
+  "main": "index.js",
+  "typings": "index.d.ts",
+  "repository": "https://github.com/smallify/smallify-nuxtjs.git",
+  "author": "beanjs",
+  "license": "MIT",
+  "engines": {
+    "node": ">=10.16.0"
+  },
+  "scripts": {
+    "start": "node ./ex.js",
+    "lint": "npm run lint:standard && npm run lint:typescript",
+    "lint:fix": "standard --fix",
+    "lint:standard": "standard --verbose | snazzy",
+    "lint:typescript": "eslint -c types/.eslintrc types/**/*.d.ts",
+    "postinstall": "node ./postinstall.js"
+  },
+  "devDependencies": {
+    "@nuxtjs/eslint-module": "^3.0.2",
+    "@typescript-eslint/eslint-plugin": "^4.9.1",
+    "@typescript-eslint/parser": "^4.9.1",
+    "core-js": "^3.9.1",
+    "eslint": "^7.15.0",
+    "eslint-config-standard": "^16.0.2",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^4.2.1",
+    "eslint-plugin-standard": "^5.0.0",
+    "eslint-plugin-vue": "^7.6.0",
+    "nuxt-buefy": "^0.4.4",
+    "pino-pretty": "^3.5.0",
+    "pre-commit": "^1.2.2",
+    "smallify": "^1.0.4",
+    "snazzy": "^9.0.0",
+    "standard": "^16.0.3",
+    "typescript": "^4.1.3"
+  },
+  "pre-commit": ["lint"],
+  "dependencies": {
+    "@nuxt/types": "^2.15.2",
+    "extract-zip": "^2.0.1",
+    "nuxt": "^2.15.2"
+  }
+}
