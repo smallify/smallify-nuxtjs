@@ -1,7 +1,11 @@
 const { Nuxt, Builder } = require('nuxt')
+const path = require('path')
+const generate = require('./generate')
 
 module.exports = async function (smallify, opts) {
-  const nuxtOptions = opts.nuxt || {}
+  await generate()
+
+  const nuxtOptions = require(path.join(process.cwd(), 'nuxtjs', 'nuxt.config'))
   const properties = opts.properties || []
 
   if (nuxtOptions.dev !== true) {

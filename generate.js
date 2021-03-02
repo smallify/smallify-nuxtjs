@@ -1,68 +1,71 @@
-#!/usr/bin/env node
+const path = require('path')
+const fs = require('fs')
+const unzip = require('extract-zip')
 
-process.stdout.write(__dirname)
-process.stdout.write(process.cwd())
+async function generate () {
+  const pFile = path.join(process.cwd(), 'package.json')
+  const zFile = path.join(__dirname, 'nuxtjs-template.zip')
+  const jFile = path.join(process.cwd(), 'jsconfig.json')
 
-// const path = require('path')
-// const fs = require('fs')
-// const unzip = require('extract-zip')
+  const mod = require(pFile)
 
-// const pFile = path.join(process.cwd(), 'package.json')
-// const zFile = path.join(__dirname, 'nuxtjs-template.zip')
-// const jFile = path.join(process.cwd(), 'jsconfig.json')
+  mod.scripts = mod.scripts || {
+    lint: 'npm run lint:standard && npm run lint:typescript',
+    'lint:fix': 'standard --fix',
+    'lint:standard': 'standard --verbose | snazzy',
+    'lint:typescript': 'eslint -c types/.eslintrc types/**/*.d.ts'
+  }
 
-// const mod = require(pFile)
+  const { scripts } = mod
 
-// mod.scripts = mod.scripts || {
-//   lint: 'npm run lint:standard && npm run lint:typescript',
-//   'lint:fix': 'standard --fix',
-//   'lint:standard': 'standard --verbose | snazzy',
-//   'lint:typescript': 'eslint -c types/.eslintrc types/**/*.d.ts'
-// }
+  const nScripts = {
+    'lint:nuxt': 'eslint --ext ".js,.vue" ./nuxtjs',
+    'build:nuxt': 'nuxt build -c ./nuxtjs/nuxt.config.js'
+  }
 
-// const { scripts } = mod
+  const lScript = ' && npm run lint:nuxt'
 
-// const nScripts = {
-//   'lint:nuxt': 'eslint --ext ".js,.vue" ./nuxtjs',
-//   'build:nuxt': 'nuxt build -c ./nuxtjs/nuxt.config.js'
-// }
+  for (const s in nScripts) {
+    if (!(s in scripts)) {
+      scripts[s] = nScripts[s]
+    }
+  }
 
-// const lScript = ' && npm run lint:nuxt'
+  if (
+    scripts.lint &&
+    scripts.lint.indexOf &&
+    scripts.lint.indexOf(lScript) < 0
+  ) {
+    scripts.lint += lScript
+  }
 
-// for (const s in nScripts) {
-//   if (!(s in scripts)) {
-//     scripts[s] = nScripts[s]
-//   }
-// }
+  fs.writeFileSync(pFile, JSON.stringify(mod, null, '  '))
 
-// if (scripts.lint && scripts.lint.indexOf && scripts.lint.indexOf(lScript) < 0) {
-//   scripts.lint += lScript
-// }
+  if (!fs.existsSync(path.join(process.cwd(), 'nuxtjs'))) {
+    await unzip(zFile, { dir: process.cwd() })
+  }
 
-// fs.writeFileSync(pFile, JSON.stringify(mod, null, '  '))
+  if (!fs.existsSync(jFile)) {
+    fs.writeFileSync(
+      jFile,
+      JSON.stringify(
+        {
+          compilerOptions: {
+            baseUrl: '.',
+            paths: {
+              '~/*': ['./*'],
+              '@/*': ['./*'],
+              '~~/*': ['./*'],
+              '@@/*': ['./*']
+            }
+          },
+          exclude: ['node_modules', '.nuxt', 'dist']
+        },
+        null,
+        '  '
+      )
+    )
+  }
+}
 
-// if (!fs.existsSync(path.join(process.cwd(), 'nuxtjs'))) {
-//   unzip(zFile, { dir: process.cwd() })
-// }
-
-// if (!fs.existsSync(jFile)) {
-//   fs.writeFileSync(
-//     jFile,
-//     JSON.stringify(
-//       {
-//         compilerOptions: {
-//           baseUrl: '.',
-//           paths: {
-//             '~/*': ['./*'],
-//             '@/*': ['./*'],
-//             '~~/*': ['./*'],
-//             '@@/*': ['./*']
-//           }
-//         },
-//         exclude: ['node_modules', '.nuxt', 'dist']
-//       },
-//       null,
-//       '  '
-//     )
-//   )
-// }
+module.exports = generate

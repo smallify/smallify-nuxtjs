@@ -1,10 +1,7 @@
 {
   "name": "smallify-nuxtjs",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "index.js",
-  "bin": {
-    "smallify-nuxtjs-generate": "./generate.js"
-  },
   "typings": "index.d.ts",
   "repository": "https://github.com/smallify/smallify-nuxtjs.git",
   "author": "beanjs",
@@ -17,8 +14,7 @@
     "lint": "npm run lint:standard && npm run lint:typescript",
     "lint:fix": "standard --fix",
     "lint:standard": "standard --verbose | snazzy",
-    "lint:typescript": "eslint -c types/.eslintrc types/**/*.d.ts",
-    "postinstall": "smallify-nuxtjs-generate"
+    "lint:typescript": "eslint -c types/.eslintrc types/**/*.d.ts"
   },
   "devDependencies": {
     "@nuxtjs/eslint-module": "^3.0.2",
@@ -42,7 +38,6 @@
   },
   "pre-commit": ["lint"],
   "dependencies": {
-    "@nuxt/types": "^2.15.2",
     "extract-zip": "^2.0.1",
     "nuxt": "^2.15.2"
   }

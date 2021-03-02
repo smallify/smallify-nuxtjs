@@ -8,14 +8,10 @@ const smallify = Smallify({
   }
 })
 
-smallify
-  .register(smallifyNuxt, {
-    nuxt: require('./nuxtjs/nuxt.config')
-  })
-  .after(() => {
-    smallify.nuxt('/')
-    smallify.nuxt('/inspire')
-  })
+smallify.register(smallifyNuxt, {}).after(() => {
+  smallify.nuxt('/')
+  smallify.nuxt('/inspire')
+})
 
 smallify.ready(err => {
   err && smallify.$log.error(err)
