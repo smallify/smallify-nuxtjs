@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 const path = require('path')
 const fs = require('fs')
 const unzip = require('extract-zip')
@@ -8,7 +10,14 @@ const jFile = path.join(process.cwd(), 'jsconfig.json')
 
 const mod = require(pFile)
 
-const { scripts } = mod
+const {
+  scripts = {
+    lint: 'npm run lint:standard && npm run lint:typescript',
+    'lint:fix': 'standard --fix',
+    'lint:standard': 'standard --verbose | snazzy',
+    'lint:typescript': 'eslint -c types/.eslintrc types/**/*.d.ts'
+  }
+} = mod
 
 const nScripts = {
   'lint:nuxt': 'eslint --ext ".js,.vue" ./nuxtjs',
