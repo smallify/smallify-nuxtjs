@@ -32,30 +32,34 @@ for (const s in nScripts) {
   }
 }
 
-if (scripts.lint.indexOf(lScript) < 0) {
+if (scripts.lint && scripts.lint.indexOf && scripts.lint.indexOf(lScript) < 0) {
   scripts.lint += lScript
 }
 
 fs.writeFileSync(pFile, JSON.stringify(mod, null, '  '))
 
-unzip(zFile, { dir: process.cwd() })
+if (!fs.existsSync(path.join(process.cwd(), 'nuxtjs'))) {
+  unzip(zFile, { dir: process.cwd() })
+}
 
-fs.writeFileSync(
-  jFile,
-  JSON.stringify(
-    {
-      compilerOptions: {
-        baseUrl: '.',
-        paths: {
-          '~/*': ['./*'],
-          '@/*': ['./*'],
-          '~~/*': ['./*'],
-          '@@/*': ['./*']
-        }
+if (!fs.existsSync(jFile)) {
+  fs.writeFileSync(
+    jFile,
+    JSON.stringify(
+      {
+        compilerOptions: {
+          baseUrl: '.',
+          paths: {
+            '~/*': ['./*'],
+            '@/*': ['./*'],
+            '~~/*': ['./*'],
+            '@@/*': ['./*']
+          }
+        },
+        exclude: ['node_modules', '.nuxt', 'dist']
       },
-      exclude: ['node_modules', '.nuxt', 'dist']
-    },
-    null,
-    '  '
+      null,
+      '  '
+    )
   )
-)
+}
