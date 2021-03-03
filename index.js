@@ -1,12 +1,22 @@
 const { Nuxt, Builder } = require('nuxt')
 const path = require('path')
-const generate = require('./generate')
+const fs = require('fs')
+
+const { fixPackage, extractSrc } = require('./generate')
 
 module.exports = async function (smallify, opts) {
-  await generate()
-
-  const nuxtOptions = require(path.join(process.cwd(), 'nuxtjs', 'nuxt.config'))
+  const nuxtDir = opts.nuxtDir || 'nuxtjs'
   const properties = opts.properties || []
+  const exports = opts.exports || []
+
+  const nuxtPath = path.join(process.cwd(), nuxtDir)
+
+  if (!fs.existsSync(nuxtPath)) {
+    await fixPackage(nuxtDir)
+    await extractSrc(nuxtDir)
+  }
+
+  const nuxtOptions = require(path.join(process.cwd(), nuxtDir, 'nuxt.config'))
 
   if (nuxtOptions.dev !== true) {
     nuxtOptions.dev = process.env.NODE_ENV !== 'production'
@@ -49,4 +59,12 @@ module.exports = async function (smallify, opts) {
 
   smallify.nuxt('/_nuxt/*')
   smallify.nuxt('/__webpack_hmr/*')
+
+  for (const exObj of exports) {
+    if (typeof exObj === 'string') {
+      smallify.nuxt(exObj)
+    } else if (typeof exObj === 'object' && Array.isArray(exObj.methods)) {
+      smallify.nuxt(exObj.path, exObj.methods)
+    }
+  }
 }

@@ -8,9 +8,9 @@ const smallify = Smallify({
   }
 })
 
-smallify.register(smallifyNuxt, {}).after(() => {
-  smallify.nuxt('/')
-  smallify.nuxt('/inspire')
+smallify.register(smallifyNuxt, {
+  nuxtDir: 'nuxt',
+  exports: [{ path: '/', methods: ['GET'] }, '/inspire']
 })
 
 smallify.ready(err => {

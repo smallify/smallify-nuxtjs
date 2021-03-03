@@ -1,71 +1,67 @@
 const path = require('path')
-const fs = require('fs')
+const fs = require('fs').promises
 const unzip = require('extract-zip')
 
-async function generate () {
+async function fixPackage (nuxtDir) {
   const pFile = path.join(process.cwd(), 'package.json')
+
+  const pkg = require(pFile)
+  pkg.scripts = pkg.scripts || {}
+  // lint: 'npm run lint:standard && npm run lint:typescript',
+  // 'lint:fix': 'standard --fix',
+  // 'lint:standard': 'standard --verbose | snazzy',
+  // 'lint:typescript': 'eslint -c types/.eslintrc types/**/*.d.ts'
+
+  const { scripts } = pkg
+
+  const nScripts = {
+    'nuxt:lint': `eslint --ext ".js,.vue" ./${nuxtDir}`,
+    'nuxt:build': `nuxt build -c ./${nuxtDir}/nuxt.config.js`
+  }
+
+  for (const s in nScripts) {
+    scripts[s] = nScripts[s]
+  }
+
+  await fs.writeFile(pFile, JSON.stringify(pkg, null, '  '))
+}
+
+async function extractSrc (nuxtDir) {
   const zFile = path.join(__dirname, 'nuxtjs-template.zip')
   const jFile = path.join(process.cwd(), 'jsconfig.json')
 
-  const mod = require(pFile)
+  const nuxtPath = path.join(process.cwd(), nuxtDir)
 
-  mod.scripts = mod.scripts || {
-    lint: 'npm run lint:standard && npm run lint:typescript',
-    'lint:fix': 'standard --fix',
-    'lint:standard': 'standard --verbose | snazzy',
-    'lint:typescript': 'eslint -c types/.eslintrc types/**/*.d.ts'
-  }
+  await unzip(zFile, { dir: nuxtPath })
 
-  const { scripts } = mod
-
-  const nScripts = {
-    'lint:nuxt': 'eslint --ext ".js,.vue" ./nuxtjs',
-    'build:nuxt': 'nuxt build -c ./nuxtjs/nuxt.config.js'
-  }
-
-  const lScript = ' && npm run lint:nuxt'
-
-  for (const s in nScripts) {
-    if (!(s in scripts)) {
-      scripts[s] = nScripts[s]
-    }
-  }
-
-  if (
-    scripts.lint &&
-    scripts.lint.indexOf &&
-    scripts.lint.indexOf(lScript) < 0
-  ) {
-    scripts.lint += lScript
-  }
-
-  fs.writeFileSync(pFile, JSON.stringify(mod, null, '  '))
-
-  if (!fs.existsSync(path.join(process.cwd(), 'nuxtjs'))) {
-    await unzip(zFile, { dir: process.cwd() })
-  }
-
-  if (!fs.existsSync(jFile)) {
-    fs.writeFileSync(
-      jFile,
-      JSON.stringify(
-        {
-          compilerOptions: {
-            baseUrl: '.',
-            paths: {
-              '~/*': ['./*'],
-              '@/*': ['./*'],
-              '~~/*': ['./*'],
-              '@@/*': ['./*']
-            }
-          },
-          exclude: ['node_modules', '.nuxt', 'dist']
+  await fs.writeFile(
+    jFile,
+    JSON.stringify(
+      {
+        compilerOptions: {
+          baseUrl: '.',
+          paths: {
+            '~/*': ['./*'],
+            '@/*': ['./*'],
+            '~~/*': ['./*'],
+            '@@/*': ['./*']
+          }
         },
-        null,
-        '  '
-      )
+        exclude: ['node_modules', '.nuxt', 'dist']
+      },
+      null,
+      '  '
     )
-  }
+  )
+
+  const nFile = path.join(nuxtPath, 'nuxt.config.js')
+  let nConfig = (await fs.readFile(nFile)).toString('utf-8')
+  nConfig = nConfig.replace('srcDir: null', `srcDir: './${nuxtDir}'`)
+
+  await fs.writeFile(nFile, nConfig)
 }
 
-module.exports = generate
+module.exports = {
+  fixPackage,
+  extractSrc
+}
