@@ -38,6 +38,7 @@ module.exports = async function (smallify, opts) {
     })
   }
 
+  smallify.decorate('$nuxt', nuxt)
   smallify.decorate('nuxt', function (path, methods = ['GET']) {
     for (const method of methods) {
       smallify.route({
