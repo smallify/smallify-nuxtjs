@@ -9,6 +9,7 @@ export class NuxtOptions extends PluginOptions {
   properties: Array<string>
   nuxtDir: string
   exports: Array<string | NuxtUrl>
+  override (nuxtConfig: unknown): void
 }
 
 export type SmallifyNuxt = {

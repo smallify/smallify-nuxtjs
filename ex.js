@@ -9,8 +9,10 @@ const smallify = Smallify({
 })
 
 smallify.register(smallifyNuxt, {
-  nuxtDir: 'nuxt',
-  exports: [{ path: '/', methods: ['GET'] }, '/inspire']
+  exports: [{ path: '/', methods: ['GET'] }, '/inspire'],
+  override (nuxtConfig) {
+    console.log(nuxtConfig)
+  }
 })
 
 smallify.ready(err => {

@@ -4,10 +4,13 @@ const fs = require('fs')
 
 const { fixPackage, extractSrc } = require('./generate')
 
+function noop () {}
+
 module.exports = async function (smallify, opts) {
   const nuxtDir = opts.nuxtDir || 'nuxtjs'
   const properties = opts.properties || []
   const exports = opts.exports || []
+  const override = opts.override || noop
 
   const nuxtPath = path.join(process.cwd(), nuxtDir)
 
@@ -17,6 +20,7 @@ module.exports = async function (smallify, opts) {
   }
 
   const nuxtOptions = require(path.join(process.cwd(), nuxtDir, 'nuxt.config'))
+  override(nuxtOptions)
 
   if (nuxtOptions.dev !== true) {
     nuxtOptions.dev = process.env.NODE_ENV !== 'production'
